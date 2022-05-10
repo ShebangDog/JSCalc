@@ -10,3 +10,4 @@ export const concat = (value, left, right) => new Node(value, left, right)
 
 export const None = new Node()
 export const Leaf = (value) => new Node(value)
+

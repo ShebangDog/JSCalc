@@ -1,39 +1,58 @@
-import { NaturalNumber, Operator } from "./models/token.js"
+import { NaturalNumber, Operator, Parenthes, ParenthesClose, ParenthesOpen } from "./models/token.js"
 import { None, concat, Leaf } from "./models/node.js"
 
-export const parse = (tokenList, result = []) => {
-    if (tokenList.length === 0) return result
-
+export const parse = (tokenList) => {
     const [head] = tokenList
 
-    if (head instanceof NaturalNumber) {
-        const [expr, consumedTokenList] = expression(tokenList)
+    if (head instanceof NaturalNumber || head instanceof ParenthesOpen) {
+        const [expr, _] = expression(tokenList)
+        return expr
 
-        return parse(consumedTokenList, [...result, expr])
     }
 
     throw Error(`expect NaturalNumber, but got ${head}`)
 }
 
-const expression = (tokenList, result = [None, tokenList]) => {
-    if (tokenList.length === 0) return result
-    const [resultNode, _] = result
-    
+const expression = (tokenList) => {
+    const recurse = (tokenList, result) => {
+        if (tokenList.length === 0) return result
+        
+        const [head, ...tail] = tokenList
+        const [node, _] = result
+        
+        if (head instanceof Operator) {
+            const [right, consumed] = primary(tail)
+
+            return recurse(consumed, [concat(head, node, right), consumed])
+        }
+
+        if (head instanceof ParenthesClose) return result
+
+        throw new Error(`expect Operator or Parenthes, but got ${head}`)
+    }
+
+    const [head] = tokenList
+
+    if (head instanceof NaturalNumber || head instanceof ParenthesOpen) {
+        const [node, consumed] = primary(tokenList)
+        return recurse(consumed, [node, consumed])
+    }
+
+
+    throw new Error(`expect NaturalNumber, but got ${token}`)
+}
+
+const primary = (tokenList, result = [None, tokenList]) => {
     const [token, ...tail] = tokenList
-    if (token instanceof NaturalNumber) {
-        const [operator, right, ...rest] = tail
-        if (!(operator instanceof Operator)) throw Error(`expect Operator, but got ${operator}`)
-        if (!(right instanceof NaturalNumber)) throw Error(`expect NaturalNumber but got ${right}`)
 
-        return expression(rest, [concat(operator, Leaf(token), Leaf(right)), rest])
+    if (token instanceof NaturalNumber) return [Leaf(token), tail]
+
+    if (token instanceof ParenthesOpen) {
+        const [node, [close, ...consumed]] = expression(tail, [result[0], tail])
+        if (!close instanceof ParenthesClose) throw new Error(`expect ${Parenthes.Close.value}, but got ${close}`)
+
+        return [node, consumed]
     }
 
-    if (token instanceof Operator) {
-        const [right, ...rest] = tail
-        if (right instanceof NaturalNumber) return expression(rest, [concat(token, resultNode, Leaf(right)), rest])
-
-        throw Error(`expect NaturalNumber, but got ${right}`)
-    }
-
-    throw Error(`expect Operator, but got ${token}`)
+    throw new Error(`expect NaturalNumber or Operator, but got ${token}`)
 }

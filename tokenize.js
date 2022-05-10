@@ -1,4 +1,4 @@
-import { Space } from "./models/token.js"
+import { Parenthes, Space } from "./models/token.js"
 import { Operator } from "./models/token.js"
 import { NaturalNumber } from "./models/token.js"
 import { takeWhile } from "./util/take.js"
@@ -10,7 +10,13 @@ export const tokenize = (characterList, result = []) => {
     const [head, ...tail] = characterList
 
     if (Space.is(head)) return tokenize(tail, result)
+
     if (Operator.is(head)) return tokenize(tail, [...result, Operator.of(head)])
+
+    const keywords = [Parenthes.Open, Parenthes.Close]
+    for (const keyword of keywords) {
+        if (keyword.is(head)) return tokenize(tail, [...result, keyword])   
+    }
 
     if (NaturalNumber.is(head)) {
         const naturalNumber = takeWhile(characterList, NaturalNumber.is).join("")

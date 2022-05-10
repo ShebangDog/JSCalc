@@ -32,6 +32,24 @@ export const Semicolon = new class Semicolon extends Reserved {
     }
 }
 
+export class ParenthesOpen extends Reserved {
+    constructor() {
+        super("(")
+    }
+}
+
+export class ParenthesClose extends Reserved {
+    constructor() {
+        super(")")
+    }
+}
+
+
+export const Parenthes = {
+    Open: new ParenthesOpen(),
+    Close: new ParenthesClose(),
+}
+
 export class NaturalNumber extends Token {
     static is = (string) => !Number.isNaN(Number.parseInt(string, 10))
     static of = (value) => new NaturalNumber(value)
