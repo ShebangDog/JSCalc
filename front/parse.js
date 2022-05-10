@@ -1,5 +1,5 @@
-import { NaturalNumber, Operator, Parenthes, ParenthesClose, ParenthesOpen } from "./models/token.js"
-import { None, concat, Leaf } from "./models/node.js"
+import { NaturalNumber, Operator, Parenthes, ParenthesClose, ParenthesOpen } from "../models/token.js"
+import { None, concat, Leaf } from "../models/node.js"
 
 export const parse = (tokenList) => {
     const [head] = tokenList

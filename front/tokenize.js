@@ -1,8 +1,8 @@
-import { Parenthes, Space } from "./models/token.js"
-import { Operator } from "./models/token.js"
-import { NaturalNumber } from "./models/token.js"
-import { takeWhile } from "./util/take.js"
-import { dropLeft } from "./util/drop.js"
+import { Parenthes, Space } from "../models/token.js"
+import { Operator } from "../models/token.js"
+import { NaturalNumber } from "../models/token.js"
+import { takeWhile } from "../util/take.js"
+import { dropLeft } from "../util/drop.js"
 
 export const tokenize = (characterList, result = []) => {
     if (characterList.length === 0) return result

@@ -1,5 +1,5 @@
-import { tokenize } from "./tokenize.js"
-import { parse } from "./parse.js"
+import { tokenize } from "./front/tokenize.js"
+import { parse } from "./front/parse.js"
 import { PostOrder, traversal } from "./traversal.js"
 import { evaluate } from "./eval.js"
 
