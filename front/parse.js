@@ -9,7 +9,7 @@ export const parse = (tokenList) => {
 }
 
 const program = (tokenList, result = []) => {
-    if (tokenList.length === 0) return [...result, Node.EOF]
+    if (tokenList.length === 0) return result
 
     const [node, consumed] = statement(tokenList)
     const remain = dropWhile(consumed, elem => elem instanceof NewLine)

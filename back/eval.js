@@ -1,10 +1,11 @@
-import { NaturalNumber, Operator } from "../models/token.js"
+import { Identity, NaturalNumber, Operator } from "../models/token.js"
 import { EmptyStack } from "../util/stack.js"
+import { traversal, PostOrder } from "../util/traversal.js"
 
 const stack = (rpnExpr) => rpnExpr.reduce(([numberStack, operatorStack], elem) => {
     if (elem instanceof NaturalNumber) return [numberStack.push(elem.value - 0), operatorStack]
     if (elem instanceof Operator) return [numberStack, operatorStack.push(elem.value)]
-        
+    
     throw new Error("error")
 }, [EmptyStack, EmptyStack])
 
@@ -35,7 +36,10 @@ const myEval = (numberStack, operatorStack) => {
     )
 }
 
-export const evaluate = (rpnExpr) => {
+export const evaluate = (tree, store) => {
+    const rpnExpr = traversal(PostOrder)(tree, elem => 
+        elem instanceof Identity ? NaturalNumber.of(store.get(elem.value).toString()) : elem
+    )
     const [numberStack, operatorStack] = stack(rpnExpr)
 
     return myEval(numberStack, operatorStack)

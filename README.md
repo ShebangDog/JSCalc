@@ -15,6 +15,8 @@ expr: 1 + 2 + 3
 result: left + right // => 18
 ```
 
+出力する関数を用意しない代わりに最後の値を出力する
+
 Syntax
 ```ebnf
 <program> ::= { <statement> }

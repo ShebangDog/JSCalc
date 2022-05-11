@@ -6,8 +6,12 @@ const main = () => {
     const input = `
     
     
-    value: 1 + 2 + 3 + 123 + (3)
+    value: 1 + 2 + 3 + 4 + (5)
     value + 1
+    left: value + 10
+
+    left + value
+    
     `
 
     const tokenList = tokenize(input.split(""))
