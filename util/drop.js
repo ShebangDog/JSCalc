@@ -8,3 +8,12 @@ export const dropRight = (list, count) => {
     return dropped
 }
 
+export const dropWhile = (list, predicate) => list.reduce(([result, isContinue], element) => {
+    const complexCondition = isContinue && predicate(element)
+    const [_, ...tail] = result
+
+    return [
+        complexCondition ? tail : result,
+        complexCondition
+    ]
+}, [list, true])[0]
