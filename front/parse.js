@@ -1,41 +1,36 @@
-import { Colon, Identity, NaturalNumber, NewLine, Operator, Parenthes, ParenthesClose, ParenthesOpen } from "../models/token.js"
-import { None, concat, Leaf, Declaration, EndOfFile } from "../models/node.js"
+import { concat, Declaration, Node } from "../models/node.js"
+import { Identity, NaturalNumber, ParenthesOpen, ParenthesClose, Operator, NewLine, Colon } from "../models/token.js"
+import { dropWhile } from "../util/drop.js"
 
-export const parse = (tokenList) => program(tokenList)
+export const parse = (tokenList) => {
+    const remain = dropWhile(tokenList, token => token instanceof NewLine)
+
+    return program(remain)
+}
 
 const program = (tokenList, result = []) => {
-    if (tokenList.length === 0) return [...result, new EndOfFile()]
+    if (tokenList.length === 0) return [...result, Node.EOF]
 
     const [node, consumed] = statement(tokenList)
+    const remain = dropWhile(consumed, elem => elem instanceof NewLine)
 
-    return program(consumed, [...result, node])
+    return program(remain, [...result, node])
 }
 
 const statement = (tokenList) => {
-    const [newLine, ...remain] = tokenList
-    const [head, eof, ...res] = remain
+    const [head, maybeColon] = tokenList
 
-    if (newLine !== NewLine) throw new Error(`expect ${NewLine}, but got ${newLine}`)
-
-    if (head instanceof Identity) {
-        return decralation(tokenList)
-    }
-
-    if (head instanceof NaturalNumber || head instanceof ParenthesOpen) {
-        console.log(remain)
-        return expression(remain)
-    }
+    if (head instanceof Identity && maybeColon instanceof Colon) return declaration(tokenList)
+    if (head instanceof NaturalNumber || head instanceof ParenthesOpen || head instanceof Identity) return expression(tokenList)
 
     throw new Error("error")
 }
 
-const decralation = (tokenList) => {
-    const [newLine, identity, colon, ...tail] = tokenList
-
-    if (newLine !== NewLine) throw new Error(`expect NewLine, but got ${JSON.stringify(newLine)}`)
+const declaration = (tokenList) => {
+    const [identity, colon, ...tail] = tokenList
 
     if (!identity instanceof Identity) throw new Error(`expect Identity, but got ${identity}`)
-    if (colon !== Colon) throw new Error(`expect ${JSON.stringify(Colon)}, but got ${JSON.stringify(colon)}`)
+    if (!colon instanceof Colon) throw new Error(`expect ${JSON.stringify(Colon)}, but got ${JSON.stringify(colon)}`)
 
     const [value, remain] = expression(tail)
 
@@ -44,13 +39,19 @@ const decralation = (tokenList) => {
 
 const expression = (tokenList) => {
     const recurse = (tokenList, result) => {
-        if (tokenList.length === 0) return result
-        
         const [head, ...tail] = tokenList
+
+        if (tokenList.length === 0 || head instanceof NewLine) return result
+        
         const [node, _] = result
         
         if (head instanceof Operator) {
-            const [right, consumed] = primary(tail)
+            const [next, ...newLineConsumed] = tail
+            const remain = next instanceof NewLine 
+                ? newLineConsumed
+                : tail
+
+            const [right, consumed] = primary(remain)
 
             return recurse(consumed, [concat(head, node, right), consumed])
         }
@@ -60,21 +61,20 @@ const expression = (tokenList) => {
         throw new Error(`expect Operator or Parenthes, but got ${JSON.stringify(head)}`)
     }
 
-    const [head] = tokenList
+    const [token] = tokenList
 
-    if (head instanceof NaturalNumber || head instanceof ParenthesOpen) {
+    if (token instanceof NaturalNumber || token instanceof ParenthesOpen) {
         const [node, consumed] = primary(tokenList)
         return recurse(consumed, [node, consumed])
     }
 
-
-    throw new Error(`expect NaturalNumber, but got ${token}`)
+    throw new Error(`expect NaturalNumber, but got ${JSON.stringify(token)}`)
 }
 
-const primary = (tokenList, result = [None, tokenList]) => {
+const primary = (tokenList, result = [Node.None, tokenList]) => {
     const [token, ...tail] = tokenList
 
-    if (token instanceof NaturalNumber) return [Leaf(token), tail]
+    if (token instanceof NaturalNumber) return [Node.Leaf(token), tail]
 
     if (token instanceof ParenthesOpen) {
         const [node, [close, ...consumed]] = expression(tail, [result[0], tail])
