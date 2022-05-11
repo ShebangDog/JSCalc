@@ -1,5 +1,5 @@
-import { Declaration } from "./models/node.js"
-import { PostOrder, traversal } from "./traversal.js"
+import { Declaration } from "../models/node.js"
+import { PostOrder, traversal } from "../traversal.js"
 import { evaluate } from "./eval.js"
 
 export const run = (code, result = [0]) => {
