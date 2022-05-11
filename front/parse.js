@@ -63,7 +63,7 @@ const expression = (tokenList) => {
 
     const [token] = tokenList
 
-    if (token instanceof NaturalNumber || token instanceof ParenthesOpen) {
+    if (token instanceof NaturalNumber || token instanceof ParenthesOpen || token instanceof Identity) {
         const [node, consumed] = primary(tokenList)
         return recurse(consumed, [node, consumed])
     }
@@ -74,7 +74,7 @@ const expression = (tokenList) => {
 const primary = (tokenList, result = [Node.None, tokenList]) => {
     const [token, ...tail] = tokenList
 
-    if (token instanceof NaturalNumber) return [Node.Leaf(token), tail]
+    if (token instanceof NaturalNumber || token instanceof Identity) return [Node.Leaf(token), tail]
 
     if (token instanceof ParenthesOpen) {
         const [node, [close, ...consumed]] = expression(tail, [result[0], tail])

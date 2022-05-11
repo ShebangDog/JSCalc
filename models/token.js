@@ -9,7 +9,7 @@ class ReservedClass extends Token {
         super(value)
     }
     
-    is(value) {
+    is = (value) => {
         return value === this.value
     }
 }
@@ -80,6 +80,8 @@ export const Reserved = {
     },
 }
 
+const isList = Object.values(Reserved).map(obj => (obj?.Open?.is ?? obj?.Close?.is) ?? obj.is)
+
 export class Identity extends Token {
     static is = (string) => {
         const [head, ...tail] = string
@@ -92,14 +94,17 @@ export class Identity extends Token {
     
     static Head = ({
         isNot: (value) => {
-            const badHeadPattern = [(char) => Reserved.Colon.is(char), NaturalNumber.is]
+            const badHeadPattern = [
+                ...isList,
+                NaturalNumber.is
+            ]
             
             return badHeadPattern.some(pred => pred(value))
         }
     })
     
     static Tail = ({
-        isNot: (value) => [(char) => Reserved.Colon.is(char)].some(pred => pred(value))
+        isNot: (value) => [...isList].some(pred => pred(value))
     })
     
     static of = (identity) => new Identity(identity)
