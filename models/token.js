@@ -4,7 +4,7 @@ class Token {
     }
 }
 
-export class Reserved extends Token {
+class ReservedClass extends Token {
     constructor(value) {
         super(value)
     }
@@ -14,46 +14,40 @@ export class Reserved extends Token {
     }
 }
 
-export const Space = new class Space extends Reserved {
+export class Space extends ReservedClass {
     constructor() {
         super(" ")
     }
 }
 
-export const NewLine = new class NewLine extends Reserved {
+export class NewLine extends ReservedClass {
     constructor() {
         super("\n")
     }
 }
 
-export const Semicolon = new class Semicolon extends Reserved {
+export class Semicolon extends ReservedClass {
     constructor() {
         super(";")
     }
 }
 
-export const Colon = new class Colon extends Reserved {
+export class Colon extends ReservedClass {
     constructor() {
         super(":")
     }
 }
 
-export class ParenthesOpen extends Reserved {
+export class ParenthesOpen extends ReservedClass {
     constructor() {
         super("(")
     }
 }
 
-export class ParenthesClose extends Reserved {
+export class ParenthesClose extends ReservedClass {
     constructor() {
         super(")")
     }
-}
-
-
-export const Parenthes = {
-    Open: new ParenthesOpen(),
-    Close: new ParenthesClose(),
 }
 
 export class NaturalNumber extends Token {
@@ -75,6 +69,17 @@ export class Operator extends Token {
     }
 }
 
+export const Reserved = {
+    Space: new Space(),
+    NewLine: new NewLine(),
+    Semicolon: new Semicolon(),
+    Colon: new Colon(),
+    Parenthes: {
+        Open: new ParenthesOpen(),
+        Close: new ParenthesClose(),
+    },
+}
+
 export class Identity extends Token {
     static is = (string) => {
         const [head, ...tail] = string
@@ -86,11 +91,15 @@ export class Identity extends Token {
     }
     
     static Head = ({
-        isNot: (value) => [(char) => Colon.is(char), NaturalNumber.is].some(pred => pred(value))
+        isNot: (value) => {
+            const badHeadPattern = [(char) => Reserved.Colon.is(char), NaturalNumber.is]
+            
+            return badHeadPattern.some(pred => pred(value))
+        }
     })
     
     static Tail = ({
-        isNot: (value) => [(char) => Colon.is(char)].some(pred => pred(value))
+        isNot: (value) => [(char) => Reserved.Colon.is(char)].some(pred => pred(value))
     })
     
     static of = (identity) => new Identity(identity)
