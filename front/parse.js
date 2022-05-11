@@ -1,12 +1,14 @@
 import { Colon, Identity, NaturalNumber, NewLine, Operator, Parenthes, ParenthesClose, ParenthesOpen } from "../models/token.js"
 import { None, concat, Leaf, Declaration, EndOfFile } from "../models/node.js"
 
-export const parse = (tokenList, result = []) => {
+export const parse = (tokenList) => program(tokenList)
+
+const program = (tokenList, result = []) => {
     if (tokenList.length === 0) return [...result, new EndOfFile()]
 
-    const [node, consumed] = statement(tokenList, result)
+    const [node, consumed] = statement(tokenList)
 
-    return parse(consumed, [...result, node])
+    return program(consumed, [...result, node])
 }
 
 const statement = (tokenList) => {
