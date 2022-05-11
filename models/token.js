@@ -32,6 +32,12 @@ export const Semicolon = new class Semicolon extends Reserved {
     }
 }
 
+export const Colon = new class Colon extends Reserved {
+    constructor() {
+        super(":")
+    }
+}
+
 export class ParenthesOpen extends Reserved {
     constructor() {
         super("(")
@@ -66,5 +72,30 @@ export class Operator extends Token {
 
     constructor(value) {
         super(value)
+    }
+}
+
+export class Identity extends Token {
+    static is = (string) => {
+        const [head, ...tail] = string
+
+        if (this.Head.isNot(head)) return false
+        if (this.Tail.isNot(tail)) return false
+
+        return true
+    }
+    
+    static Head = ({
+        isNot: (value) => [(char) => Colon.is(char), NaturalNumber.is].some(pred => pred(value))
+    })
+    
+    static Tail = ({
+        isNot: (value) => [(char) => Colon.is(char)].some(pred => pred(value))
+    })
+    
+    static of = (identity) => new Identity(identity)
+
+    constructor(identity) {
+        super(identity)
     }
 }

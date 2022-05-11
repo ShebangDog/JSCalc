@@ -1,23 +1,20 @@
 import { tokenize } from "./front/tokenize.js"
 import { parse } from "./front/parse.js"
-import { PostOrder, traversal } from "./traversal.js"
-import { evaluate } from "./eval.js"
+import { run } from "./runner.js"
 
 const main = () => {
-    const input = "(1 + 2) - 3"
+    const input = `
+    value: (1 + 2) + 3 + 123`
 
     const tokenList = tokenize(input.split(""))
+    console.log(tokenList)
 
     const code = parse(tokenList)
-
-    // const result = code.map(elem => traversal(PostOrder)(elem, e => e))
-
-    const result = traversal(PostOrder)(code, elem => elem)
+    const result = run(code)
 
     const paperList = [
-        tokenList,
-        ...result,
-        evaluate(result)
+        ...tokenList,
+        result
     ]
 
     paperList.forEach(paper => console.log(paper))

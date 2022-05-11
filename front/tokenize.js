@@ -1,4 +1,4 @@
-import { Parenthes, Space } from "../models/token.js"
+import { Colon, Identity, NewLine, Parenthes, Space } from "../models/token.js"
 import { Operator } from "../models/token.js"
 import { NaturalNumber } from "../models/token.js"
 import { takeWhile } from "../util/take.js"
@@ -10,6 +10,8 @@ export const tokenize = (characterList, result = []) => {
     const [head, ...tail] = characterList
 
     if (Space.is(head)) return tokenize(tail, result)
+    if (Colon.is(head)) return tokenize(tail, [...result, Colon])
+    if (NewLine.is(head)) return tokenize(tail, [...result, NewLine])
 
     if (Operator.is(head)) return tokenize(tail, [...result, Operator.of(head)])
 
@@ -27,5 +29,14 @@ export const tokenize = (characterList, result = []) => {
         return tokenize(consumedCharacterList, [...result, token])
     }
 
-    throw Error(`some token expected, but got ${head}`)
+    if (Identity.is(head)) {
+        const identity = takeWhile(characterList, Identity.is).join("")
+
+        const token = Identity.of(identity)
+        const consumedCharacterList = dropLeft(characterList, token.value.length)
+
+        return tokenize(consumedCharacterList, [...result, token])
+    }
+
+    throw Error(`some token expected, but got ${JSON.stringify(head)}`)
 }

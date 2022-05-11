@@ -1,16 +1,43 @@
-import { NaturalNumber, Operator, Parenthes, ParenthesClose, ParenthesOpen } from "../models/token.js"
-import { None, concat, Leaf } from "../models/node.js"
+import { Colon, Identity, NaturalNumber, NewLine, Operator, Parenthes, ParenthesClose, ParenthesOpen } from "../models/token.js"
+import { None, concat, Leaf, Declaration, EndOfFile } from "../models/node.js"
 
-export const parse = (tokenList) => {
-    const [head] = tokenList
+export const parse = (tokenList, result = []) => {
+    if (tokenList.length === 0) return [...result, new EndOfFile()]
 
-    if (head instanceof NaturalNumber || head instanceof ParenthesOpen) {
-        const [expr, _] = expression(tokenList)
-        return expr
+    const [node, consumed] = statement(tokenList, result)
 
+    return parse(consumed, [...result, node])
+}
+
+const statement = (tokenList) => {
+    const [newLine, ...remain] = tokenList
+    const [head, eof, ...res] = remain
+
+    if (newLine !== NewLine) throw new Error(`expect ${NewLine}, but got ${newLine}`)
+
+    if (head instanceof Identity) {
+        return decralation(tokenList)
     }
 
-    throw Error(`expect NaturalNumber, but got ${head}`)
+    if (head instanceof NaturalNumber || head instanceof ParenthesOpen) {
+        console.log(remain)
+        return expression(remain)
+    }
+
+    throw new Error("error")
+}
+
+const decralation = (tokenList) => {
+    const [newLine, identity, colon, ...tail] = tokenList
+
+    if (newLine !== NewLine) throw new Error(`expect NewLine, but got ${JSON.stringify(newLine)}`)
+
+    if (!identity instanceof Identity) throw new Error(`expect Identity, but got ${identity}`)
+    if (colon !== Colon) throw new Error(`expect ${JSON.stringify(Colon)}, but got ${JSON.stringify(colon)}`)
+
+    const [value, remain] = expression(tail)
+
+    return [new Declaration(identity, value), remain]
 }
 
 const expression = (tokenList) => {
@@ -28,7 +55,7 @@ const expression = (tokenList) => {
 
         if (head instanceof ParenthesClose) return result
 
-        throw new Error(`expect Operator or Parenthes, but got ${head}`)
+        throw new Error(`expect Operator or Parenthes, but got ${JSON.stringify(head)}`)
     }
 
     const [head] = tokenList
