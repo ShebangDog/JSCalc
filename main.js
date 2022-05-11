@@ -4,16 +4,18 @@ import { run } from "./runner.js"
 
 const main = () => {
     const input = `
-    value: (1 + 2) + 3 + 123`
+    
+    
+    value: (1 + 2 + 3) + 123 + 
+    3 + 3
+    3
+`
 
     const tokenList = tokenize(input.split(""))
-    console.log(tokenList)
-
     const code = parse(tokenList)
     const result = run(code)
 
     const paperList = [
-        ...tokenList,
         result
     ]
 
