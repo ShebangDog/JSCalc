@@ -12,7 +12,7 @@ Syntax
 ```ebnf
 <program> ::= { <statement> }
 
-<statement> ::= <decl> | <expr>
+<statement> ::= (<decl> | <expr>) { <NewLine> }
 
 <decl> ::= <ident> ":" <expr>
 
