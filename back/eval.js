@@ -1,5 +1,5 @@
-import { NaturalNumber, Operator } from "./models/token.js.js"
-import { EmptyStack } from "./stack.js.js"
+import { NaturalNumber, Operator } from "../models/token.js"
+import { EmptyStack } from "../util/stack.js"
 
 const stack = (rpnExpr) => rpnExpr.reduce(([numberStack, operatorStack], elem) => {
     if (elem instanceof NaturalNumber) return [numberStack.push(elem.value - 0), operatorStack]
