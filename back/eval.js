@@ -2,45 +2,28 @@ import { Identity, NaturalNumber, Operator } from "../models/token.js"
 import { EmptyStack } from "../util/stack.js"
 import { traversal, PostOrder } from "../util/traversal.js"
 
-const stack = (rpnExpr) => rpnExpr.reduce(([numberStack, operatorStack], elem) => {
-    if (elem instanceof NaturalNumber) return [numberStack.push(elem.value - 0), operatorStack]
-    if (elem instanceof Operator) return [numberStack, operatorStack.push(elem.value)]
-    
-    throw new Error("error")
-}, [EmptyStack, EmptyStack])
-
 const operatorMap = {
     "+": (left, right) => left + right,
     "-": (left, right) => left - right,
 }
 
-const myEval = (numberStack, operatorStack) => {
-    if (operatorStack.size === 0) {
-        if (numberStack.size < 1) throw new Error("expected Stack top, but got undefined")
-        if (numberStack.size > 1) throw new Error("error")
-
-        return numberStack.top
-    }
-
-    const operator = operatorStack.top
-    const poppedOpStack = operatorStack.pop()
-
-    const [right, left] = [numberStack.top, numberStack.pop().top]
-    const poppedNumStack = numberStack.pop().pop()
-
-    const pushedNumStack = poppedNumStack.push(operatorMap[operator](left, right))
-
-    return myEval(
-        pushedNumStack,
-        poppedOpStack,
-    )
-}
+const toRpn = (tree, store) => traversal(PostOrder)(tree, elem => 
+    elem instanceof Identity ? NaturalNumber.of(store.get(elem.value).toString()) : elem
+)
 
 export const evaluate = (tree, store) => {
-    const rpnExpr = traversal(PostOrder)(tree, elem => 
-        elem instanceof Identity ? NaturalNumber.of(store.get(elem.value).toString()) : elem
-    )
-    const [numberStack, operatorStack] = stack(rpnExpr)
+    const rpn = toRpn(tree, store)
 
-    return myEval(numberStack, operatorStack)
+    return rpn.reduce((numberStack, elem) => {
+        if (elem instanceof NaturalNumber) return numberStack.push(elem.value - 0)
+        if (elem instanceof Operator) {
+            const operator = elem.value
+            const [right, left] = [numberStack.top, numberStack.pop().top]
+            const resultNumStack = numberStack.pop().pop()
+
+            return resultNumStack.push(operatorMap[operator](left, right))
+        }
+
+        throw new Error("error on evaluate")
+    }, EmptyStack).top
 }
