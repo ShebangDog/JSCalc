@@ -1,28 +1,21 @@
-import { tokenize } from "./front/tokenize.js"
-import { parse } from "./front/parse.js"
-import { run } from "./back/runner.js"
+import { readFile } from "node:fs"
+import { exit } from "node:process"
+import { interpret } from "./interpret.js"
+import { program } from "commander"
+
 
 const main = () => {
-    const input = `
-    
-    
-    value: 1 + 2 + 3 + 4 + (5)
-    value + 1
-    left: value + 10
+    program.version("1.0")
+        .argument("<filename>", "The file you want to run")
+        .action(filename => {
+            readFile(filename, "utf-8", (err, data) => {
+                if (err) exit(1)
+            
+                console.log(interpret(data))
+            })
+        })
 
-    left + value
-    
-    `
-
-    const tokenList = tokenize(input.split(""))
-    const code = parse(tokenList)
-    const result = run(code)
-
-    const paperList = [
-        result
-    ]
-
-    paperList.forEach(paper => console.log(paper))
+    program.parse()
 }
 
 main()

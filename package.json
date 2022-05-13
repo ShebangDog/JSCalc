@@ -6,5 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "node main --experimental-specifier-resolution=node"
+  },
+  "dependencies": {
+    "commander": "^9.2.0"
   }
 }
