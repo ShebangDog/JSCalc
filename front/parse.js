@@ -69,10 +69,9 @@ const expression = (tokenList) => {
     }
 
     if (token instanceof Operator) {
-        const [_, ...tail] = tokenList
-        const [node, consumed] = expression(tail)
+        const [node, consumed] = primary(tokenList)
         
-        return [signedNumber(token, node), consumed]
+        return recurse(consumed, [node, consumed])
     }
 
     throw new Error(`expect NaturalNumber, but got ${JSON.stringify(token)}`)
@@ -90,5 +89,26 @@ const primary = (tokenList, result = [Node.None, tokenList]) => {
         return [node, consumed]
     }
 
+    // signed
+    if (token instanceof Operator) {
+        const [openOrNumber, ...remain] = tail
+
+        if (openOrNumber instanceof ParenthesOpen) {
+            const [node, [close, ...consumed]] = expression(remain, [result[0], remain])
+            if (!close instanceof ParenthesClose) throw new Error(`expect ${Parenthes.Close.value}, but got ${close}`)
+
+            return [signedNumber(token, node), consumed]
+        }
+
+        if (openOrNumber instanceof NaturalNumber) {
+            const naturalNumber = Node.Leaf(openOrNumber)
+            return [signedNumber(token, naturalNumber), remain]
+        }
+
+        throw new Error("aaaa")
+    }
+
     throw new Error(`expect NaturalNumber or Operator, but got ${token}`)
+
+
 }

@@ -27,7 +27,9 @@ Syntax
 
 <expr> ::= <fact> { ("+" | "-") [<NewLine>] <fact> }
 
-<fact> ::= <ident> | <number> | "(" <expr> ")"
+<fact> ::= <ident> | <signed> | "(" <expr> ")"
+
+<signed> ::= [("+" | "-")]<number> | [("+" | "-")] "(" <expr> ")"
 
 <ident> ::= [a-Z]
 
