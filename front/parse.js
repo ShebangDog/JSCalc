@@ -1,4 +1,4 @@
-import { concat, Declaration, Node } from "../models/node.js"
+import { concat, Declaration, Node, signedNumber } from "../models/node.js"
 import { Identity, NaturalNumber, ParenthesOpen, ParenthesClose, Operator, NewLine, Colon } from "../models/token.js"
 import { dropWhile } from "../util/drop.js"
 
@@ -21,7 +21,7 @@ const statement = (tokenList) => {
     const [head, maybeColon] = tokenList
 
     if (head instanceof Identity && maybeColon instanceof Colon) return declaration(tokenList)
-    if (head instanceof NaturalNumber || head instanceof ParenthesOpen || head instanceof Identity) return expression(tokenList)
+    if (head instanceof NaturalNumber || head instanceof ParenthesOpen || head instanceof Identity || head instanceof Operator) return expression(tokenList)
 
     throw new Error("error")
 }
@@ -66,6 +66,13 @@ const expression = (tokenList) => {
     if (token instanceof NaturalNumber || token instanceof ParenthesOpen || token instanceof Identity) {
         const [node, consumed] = primary(tokenList)
         return recurse(consumed, [node, consumed])
+    }
+
+    if (token instanceof Operator) {
+        const [_, ...tail] = tokenList
+        const [node, consumed] = expression(tail)
+        
+        return [signedNumber(token, node), consumed]
     }
 
     throw new Error(`expect NaturalNumber, but got ${JSON.stringify(token)}`)
