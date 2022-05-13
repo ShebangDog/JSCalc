@@ -19,18 +19,18 @@ result: left + right // => 18
 
 Syntax
 ```ebnf
-<program> ::= { <statement> }
+<program> = { <statement> }
 
-<statement> ::= (<decl> | <expr>) { <NewLine> }
+<statement> = (<decl> | <expr>) { <NewLine> }
 
-<decl> ::= <ident> ":" <expr>
+<decl> = <ident> ":" <expr>
 
-<expr> ::= <fact> { ("+" | "-") [<NewLine>] <fact> }
+<expr> = <fact> { ("+" | "-") [<NewLine>] <fact> }
 
-<fact> ::= <ident> | <signed> | "(" <expr> ")"
+<fact> = <ident> | <signed> | "(" <expr> ")"
 
-<signed> ::= [("+" | "-")]<number> | [("+" | "-")] "(" <expr> ")"
+<signed> = [("+" | "-")]<number> | [("+" | "-")] "(" <expr> ")"
 
-<ident> ::= [a-Z]
+<ident> = [a-Z]
 
 ```
